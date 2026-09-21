@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>중학교 수학 자료실</title>
+<title>2026 중학교 수학 자료실</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
 :root{
@@ -47,6 +47,7 @@ button{ font-family:inherit; }
   border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:9px;
   padding:8px 14px; font-size:12.5px; font-weight:600; cursor:pointer;
 }
+.hero-actions{ display:flex; gap:8px; align-items:center; }
 
 .layout{ display:grid; grid-template-columns:1fr 240px; gap:28px; align-items:start; }
 @media (max-width:900px){ .layout{ grid-template-columns:1fr; } }
@@ -55,13 +56,12 @@ button{ font-family:inherit; }
   background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
   padding:18px 18px 22px;
 }
-.panel-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:4px; }
-.panel-head h2{ font-size:15px; margin:0; font-weight:700; }
+.content-panel h2{ font-size:15px; margin:0 0 4px; font-weight:700; }
 .add-link-btn{
-  display:inline-block; text-decoration:none; border:1px solid var(--line); background:var(--bg); color:var(--ink);
+  display:inline-block; text-decoration:none; border:1px solid var(--ink); background:var(--ink); color:var(--bg);
   border-radius:9px; padding:8px 14px; font-size:12.5px; font-weight:600;
 }
-.add-link-btn:hover{ background:var(--hover); }
+.add-link-btn:hover{ opacity:0.85; }
 
 .grade-grid{ display:grid; gap:18px; margin-top:16px; grid-template-columns:repeat(3, 1fr); }
 @media (max-width:820px){ .grade-grid{ grid-template-columns:1fr; } }
@@ -102,21 +102,21 @@ footer{ margin-top:26px; font-size:11.5px; color:var(--ink-soft); text-align:cen
 <div class="wrap">
   <header class="hero">
     <div>
-      <h1>중학교 수학 자료실</h1>
+      <h1>2026 중학교 수학 자료실</h1>
       <div class="stat-row" id="stat-row">
         <div class="stat"><b>&hellip;</b><span>불러오는 중</span></div>
       </div>
     </div>
-    <button class="refresh-btn" id="refresh-btn" type="button">↻ 새로고침</button>
+    <div class="hero-actions">
+      <a class="add-link-btn" href="https://docs.google.com/forms/d/e/1FAIpQLSdPssFAX07MiTjq_rbMS1PVD8QwAWSuZ-eGw-cBd0iM2WEZWQ/viewform" target="_blank" rel="noopener">내용 입력</a>
+      <button class="refresh-btn" id="refresh-btn" type="button">↻ 새로고침</button>
+    </div>
   </header>
 
   <div class="layout">
     <main>
       <div class="content-panel">
-        <div class="panel-head">
-          <h2>학년별 단원</h2>
-          <a class="add-link-btn" href="https://docs.google.com/forms/d/e/1FAIpQLSdPssFAX07MiTjq_rbMS1PVD8QwAWSuZ-eGw-cBd0iM2WEZWQ/viewform" target="_blank" rel="noopener">+ 새 단원 추가</a>
-        </div>
+        <h2>학년별 단원</h2>
         <div id="units-area"><p class="loading">자료를 불러오는 중이에요...</p></div>
       </div>
     </main>
@@ -124,11 +124,11 @@ footer{ margin-top:26px; font-size:11.5px; color:var(--ink-soft); text-align:cen
     <aside class="sidebar">
       <h2>유용한 사이트</h2>
       <p class="sub">수업에 자주 쓰는 외부 도구 모음</p>
-      <ul class="site-list" id="site-list"></ul>
+      <ul class="site-list" id="site-list"><li class="empty">불러오는 중...</li></ul>
     </aside>
   </div>
 
-  <footer>단원 자료는 구글 폼으로 제출되며, 반영까지 몇 분 걸릴 수 있어요.</footer>
+  <footer>단원·사이트는 위 "+ 자료 추가" 버튼 하나로 함께 제출돼요. 반영까지 몇 분 걸릴 수 있어요.</footer>
 </div>
 
 <script>
@@ -142,12 +142,7 @@ footer{ margin-top:26px; font-size:11.5px; color:var(--ink-soft); text-align:cen
     { key:'game', label:'게임', color:'var(--game)' }
   ];
   var GRADES = ['1','2','3'];
-
-  var SITES = [
-    { title:'박연주 선생님 자료', url:'https://padlet.com/lemon590/padlet-8nhrkdebogaclj9r' },
-    { title:'장항식 선생님 사이트', url:'https://hangshik.github.io/' },
-    { title:'자투리 타임', url:'https://jaturi.me/' }
-  ];
+  var SITE_KEYWORD = '사이트';
 
   function escapeHtml(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -193,14 +188,14 @@ footer{ margin-top:26px; font-size:11.5px; color:var(--ink-soft); text-align:cen
     return m ? m[0] : null;
   }
 
-  function renderSites(){
+  function renderSites(sites){
     var html = '';
-    if (SITES.length === 0){
+    if (sites.length === 0){
       html = '<div class="empty">등록된 사이트가 없어요.</div>';
     } else {
-      for (var i=0;i<SITES.length;i++){
-        html += '<li class="site-item"><a href="' + escapeHtml(SITES[i].url) + '">' + escapeHtml(SITES[i].title) + '</a></li>';
-      }
+      sites.slice().sort(function(a,b){ return a.title.localeCompare(b.title, 'ko'); }).forEach(function(s){
+        html += '<li class="site-item"><a href="' + escapeHtml(s.url) + '">' + escapeHtml(s.title) + '</a></li>';
+      });
     }
     document.getElementById('site-list').innerHTML = html;
   }
@@ -268,14 +263,22 @@ footer{ margin-top:26px; font-size:11.5px; color:var(--ink-soft); text-align:cen
         }
         var gradeKey = headers[gradeCol], catKey = headers[catCol], unitKey = headers[unitCol], urlKey = headers[urlCol];
         var entries = [];
+        var sites = [];
         (parsed.data || []).forEach(function(row){
-          var grade = gradeFromLabel(row[gradeKey]);
+          var gradeLabel = (row[gradeKey] || '').trim();
           var unit = (row[unitKey] || '').trim();
           var url = normalizeUrl(row[urlKey]);
-          if (!grade || !unit || !url) return;
+          if (!unit || !url) return;
+          if (gradeLabel.indexOf(SITE_KEYWORD) !== -1){
+            sites.push({ title: unit, url: url });
+            return;
+          }
+          var grade = gradeFromLabel(gradeLabel);
+          if (!grade) return;
           entries.push({ grade: grade, unit: unit, url: url, category: categoryFromLabel(row[catKey]) });
         });
         renderUnits(entries);
+        renderSites(sites);
       })
       .catch(function(err){
         showError('자료를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침 해주세요. (' + err.message + ')');
@@ -283,7 +286,6 @@ footer{ margin-top:26px; font-size:11.5px; color:var(--ink-soft); text-align:cen
   }
 
   document.getElementById('refresh-btn').addEventListener('click', load);
-  renderSites();
   load();
 })();
 </script>
