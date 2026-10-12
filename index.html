@@ -215,9 +215,9 @@ footer{ margin-top:26px; font-size:11.5px; color:var(--ink-soft); text-align:cen
     var html = '<div class="grade-grid">';
     GRADES.forEach(function(g){
       var list = byGrade[g].slice().sort(function(a,b){
-        var c = naturalCompare(a.unit, b.unit);
-        if (c !== 0) return c;
-        return a.category.label.localeCompare(b.category.label);
+          var c = naturalCompare(a.unit, b.unit);
+          if (c !== 0) return c;
+          return CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category);
       });
       html += '<div class="grade-col"><h3>' + g + '학년</h3>';
       if (list.length === 0){
