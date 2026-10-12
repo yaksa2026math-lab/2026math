@@ -51,6 +51,7 @@ button{ font-family:inherit; }
 
 .layout{ display:grid; grid-template-columns:1fr 240px; gap:28px; align-items:start; }
 @media (max-width:900px){ .layout{ grid-template-columns:1fr; } }
+@media (min-width:901px){ main{ width:120%; margin-left:-20%; } }   /* ← 새로 추가된 한 줄 */
 
 .content-panel{
   background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
